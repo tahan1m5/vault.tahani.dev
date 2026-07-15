@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>vault.tahani.dev</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='white'>%E2%99%A1</text></svg>">
 
 <script>
 /* ============================================================
@@ -135,6 +136,29 @@ html[data-theme="blossom"]{
     --curve:rgba(214,146,175,.45);
     --surface-rgb:255,255,255;
     --divider:rgba(163,98,124,.12);
+}
+
+/* THEME — Portfolio: near-black with hot pink, matching tahan1m5.github.io/portfolio-new */
+html[data-theme="portfolio"]{
+    --bg1:#131316;
+    --bg2:#08080a;
+    --accent:#ff4f93;
+    --accent-ink:#08080a;
+    --text:#f4f4f6;
+    --text-soft:rgba(244,244,246,.62);
+    --text-faint:rgba(244,244,246,.32);
+    --glass:rgba(19,19,22,.62);
+    --glass-border:rgba(255,79,147,.35);
+    --shadow:0 24px 60px -18px rgba(0,0,0,.65), 0 6px 18px -6px rgba(255,79,147,.12);
+    --blob1:#1a1a1e;
+    --blob2:#3a1526;
+    --blob3:#262629;
+    --grid:rgba(255,79,147,.05);
+    --hud:rgba(244,244,246,.72);
+    --hud-strong:#ffa9cd;
+    --curve:rgba(255,79,147,.25);
+    --surface-rgb:26,26,30;
+    --divider:rgba(255,255,255,.08);
 }
 
 html,body{
@@ -755,6 +779,10 @@ main{
     background:linear-gradient(135deg,#ffffff,#fbeef3 55%,#f5b8cd);
 }
 
+.theme-swatch.portfolio{
+    background:linear-gradient(135deg,#1a1a1e,#08080a 58%,#ff4f93);
+}
+
 .theme-name{
     font-size:13.5px;
     font-weight:700;
@@ -952,34 +980,34 @@ function iconSvg(name){
    (the auth gate then asks for the PIN again).
 ============================================================ */
 const APPS = [
+ {
+        id:'github', title:'GitHub', tag:'Development', icon:'github', color:'#5E7A6C',
+        description:'Repositories, issues and pull requests. The source of everything built.',
+        primary:{ label:'Open GitHub', url:'https://github.com/tahan1m5' },
+       
+    },
     {
-        id:'dashboard', title:'Dashboard', tag:'Home', color:'#6FA287',
-        description:'Your personal operating system. One calm place to reach everything you own — sites, servers, tools and services.',
-        primary:{ label:'Lock', url:'#' }
+        id:'dashboard', title:'Portfolio', tag:'Website', color:'#6FA287',
+        description:'My personal portfolio and showcase of work. A place to share your projects, skills and achievements.',
+        primary:{ label:'Launch Portfolio', url:'https://tahan1m5.github.io/portfolio-new/' }
     },
     {
         id:'codebridge', title:'CodeBridge', tag:'Website', icon:'globe', color:'#58B99D',
-        description:'Your main website and public home on the internet.',
-        primary:{ label:'Open CodeBridge', url:'https://codebridge.dev' },
-        secondary:{ label:'GitHub Repository', url:'https://github.com/wizardryyy/codebridge' }
+        description: 'Company website for CodeBridge Consultancy. A software development and consulting company that helps businesses build and scale their digital products.',
+        primary:{ label:'Open CodeBridge', url:'https://codebridgeconsultancy.tech' },
     },
     {
-        id:'vaulted', title:'Vaulted', tag:'Web App', icon:'vault', color:'#8AAE6C',
-        description:'Personal media tracking application. Everything you watch, read and play — vaulted.',
-        primary:{ label:'Open Website', url:'https://vaulted.app' },
-        secondary:{ label:'GitHub Repository', url:'https://github.com/wizardryyy/vaulted' }
+        id:'vaulted', title:'Anywhere', tag:'Website', icon:'globe', color:'#8AAE6C',
+        description:'A remix of anywhere from Google AI studio. A place to add several images and turn it into a gallery sphere. Currently, being hosted on github.',
+        primary:{ label:'Open Website', url:'https://tahan1m5.github.io/Anywhere/' },
+      
     },
+   
     {
-        id:'github', title:'GitHub', tag:'Development', icon:'github', color:'#5E7A6C',
-        description:'Your repositories, issues and pull requests. The source of everything you build.',
-        primary:{ label:'Open GitHub', url:'https://github.com' },
-        secondary:{ label:'View Repositories', url:'https://github.com/wizardryyy?tab=repositories' }
-    },
-    {
-        id:'portainer', title:'Portainer', tag:'Self-hosted', icon:'container', color:'#4FA8A8',
-        description:'Docker container management for your home server. Stacks, images, volumes and logs.',
-        primary:{ label:'Open Portainer', url:'https://localhost:9443' },
-        secondary:{ label:'SSH', url:'ssh://root@homeserver' }
+        id:'portainer', title:'Yamtrack', tag:'Self-hosted', icon:'book', color:'#4FA8A8',
+        description:'A media tracker and organizer for the home server. Keep track of movies, shows, books and games in one place.',
+        primary:{ label:'Open Yamtrack', url:'http://192.168.100.20:8000' }
+        //secondary:{ label:'SSH', url:'ssh://root@homeserver' }
     },
     {
         id:'casaos', title:'CasaOS', tag:'Self-hosted', icon:'server', color:'#6E9ECF',
@@ -1059,7 +1087,8 @@ const APPS = [
 const THEMES = [
     { id:'meadow',  name:'Meadow',  hint:'Fresh green'  },
     { id:'noir',    name:'Noir',    hint:'Elegant dark' },
-    { id:'blossom', name:'Blossom', hint:'Soft pink'    }
+    { id:'blossom', name:'Blossom', hint:'Soft pink'    },
+    { id:'portfolio', name:'Portfolio', hint:'Hot pink dark' }
 ];
 
 function currentTheme(){
@@ -1293,7 +1322,6 @@ function buildPanel(app, idx){
 
     html += '<div class="panel-foot">';
     html +=   '<span class="url">' + (app.primary.url === '#' ? (window.location.host || 'local') : app.primary.url.replace(/^[a-z]+:\/\//, '')) + '</span>';
-    html +=   '<span class="kbd-hint"><span class="kbd">Enter</span> launch</span>';
     html += '</div>';
 
     return html;

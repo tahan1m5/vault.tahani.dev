@@ -20,7 +20,11 @@
       "Bash(google-chrome --headless=new --disable-gpu --window-size=1440,900 --screenshot=v4_settle.png --virtual-time-budget=3000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test_settle.html)",
       "Bash(google-chrome --headless=new --disable-gpu --window-size=390,844 --screenshot=v5_mobile.png --virtual-time-budget=4000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html)",
       "Bash(google-chrome --headless=new --disable-gpu --window-size=390,844 --screenshot=v6_mobile.png --virtual-time-budget=4000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html)",
-      "Bash(python3 -)"
+      "Bash(python3 -)",
+      "WebFetch(domain:tahan1m5.github.io)",
+      "Bash(curl -sL https://tahan1m5.github.io/portfolio-new/)",
+      "Bash(gh api *)",
+      "Bash(curl -sL https://tahan1m5.github.io/portfolio-new/ -o \"/tmp/claude-1000/-home-wizardryyy-Programs---------vault/91fc4a6b-371b-4303-809d-967f9ede45ee/scratchpad/portfolio.html\")"
     ]
   }
 }

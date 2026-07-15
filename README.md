@@ -1,4 +1,4 @@
-# 🌿 vault
+# vault
 
 A calm, PIN-locked personal dashboard — one glassy home for every site, server, and
 tool you own. No build step, no dependencies, no backend. Just three HTML files and a
@@ -10,16 +10,16 @@ logo.
 
 ---
 
-## ✨ Features
+## Features
 
 - **Scrollable app wheel** — a curved, spring-physics launcher you drive with the
   mouse wheel, drag, arrow keys, or touch. Each app opens a soft "glass" info card.
 - **PIN gate** — a phone-style keypad (with an erase key and a lockout after 3 wrong
   tries) stands between the loading screen and the dashboard.
 - **Three themes** — pick one in **Settings**, and it's remembered on your device:
-  - 🌿 **Meadow** — the fresh green default
-  - 🌙 **Noir** — elegant, minimal dark
-  - 🌸 **Blossom** — white with soft pink
+  -  **Meadow** — the fresh green default
+  -  **Noir** — elegant, minimal dark
+  -  **Blossom** — white with soft pink
 - **Themed end to end** — the loading screen, PIN pad, and dashboard all follow your
   chosen theme, applied before first paint so there's no flash.
 - **Playful, hand-lettered headings** in [Kranky](https://fonts.google.com/specimen/Kranky),
@@ -32,7 +32,7 @@ logo.
 
 ---
 
-## 📂 Structure
+## Structure
 
 | File             | What it does                                                        |
 | ---------------- | ------------------------------------------------------------------- |
@@ -45,7 +45,7 @@ The flow is: **`index.html` → `auth.html` → `dashboard.html`**.
 
 ---
 
-## 🚀 Getting started
+## Getting started
 
 Because everything is static, you can just open `index.html` in a browser — but themes
 are saved in `localStorage`, which behaves best when the pages are served from one
@@ -61,7 +61,7 @@ Then enter the PIN to reach the dashboard.
 
 ---
 
-## 🔧 Customizing
+## Customizing
 
 ### Add or edit your apps
 
@@ -105,13 +105,10 @@ the `THEMES` array in `dashboard.html`.
 
 ---
 
-## ⚠️ A note on the PIN
+## A note on the PIN
 
 The PIN is a **friendly gate, not real security** — it lives in client-side JavaScript
 and anyone who views the source can read it. It keeps casual eyes out of your start
 page; it is not a substitute for authentication on the services it links to.
 
 ---
-
-<p align="center"><sub>Made with 🌿 by <a href="https://github.com/wizardryyy">wizardryyy</a></sub></p>
-# vault.tahani.dev

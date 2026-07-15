@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad)",
+      "Bash(google-chrome --headless=new --disable-gpu --window-size=1440,900 --screenshot=desk.png --virtual-time-budget=4000 \"file:///home/wizardryyy/Programs%20%E2%80%89%20%DD%81%20%CB%96%E1%83%88%F0%90%91%BC%E2%8B%86/vault/dashboard.html\")",
+      "Bash(cp '/home/wizardryyy/Programs ݁ ˖Ი𐑼⋆/vault/dashboard.html' /tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html)",
+      "Bash(google-chrome --headless=new --disable-gpu --window-size=1440,900 --screenshot=desk.png --virtual-time-budget=5000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html)",
+      "Bash(google-chrome --headless=new --disable-gpu --window-size=1440,900 --screenshot=desk2.png --virtual-time-budget=20000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html)",
+      "Bash(cp /tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html /tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test_probe.html)",
+      "Bash(python3 - /tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test_probe.html)",
+      "Bash(google-chrome --headless=new --disable-gpu --window-size=1440,900 --screenshot=probe_desk.png --virtual-time-budget=3000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test_probe.html)",
+      "Bash(google-chrome --headless=new --disable-gpu --window-size=1440,900 --screenshot=v2_desk.png --virtual-time-budget=4000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html)",
+      "Bash(cp /tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html /tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test_probe2.html)",
+      "Bash(python3 - /tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test_probe2.html)",
+      "Bash(google-chrome --headless=new --disable-gpu --window-size=800,1000 --screenshot=probe2_tablet.png --virtual-time-budget=3000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test_probe2.html)",
+      "Bash(google-chrome --headless=new --disable-gpu --window-size=1440,900 --screenshot=v3_desk.png --virtual-time-budget=4000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html)",
+      "Bash(google-chrome --headless=new --disable-gpu --window-size=1440,900 --screenshot=v4_desk.png --virtual-time-budget=4000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html)",
+      "Bash(cp /tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html /tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test_settle.html)",
+      "Bash(python3 - /tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test_settle.html)",
+      "Bash(google-chrome --headless=new --disable-gpu --window-size=1440,900 --screenshot=v4_settle.png --virtual-time-budget=3000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test_settle.html)",
+      "Bash(google-chrome --headless=new --disable-gpu --window-size=390,844 --screenshot=v5_mobile.png --virtual-time-budget=4000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html)",
+      "Bash(google-chrome --headless=new --disable-gpu --window-size=390,844 --screenshot=v6_mobile.png --virtual-time-budget=4000 file:///tmp/claude-1000/-home-wizardryyy-Programs---------vault/5a39ed3b-caa3-46f1-aec8-9e22842fad87/scratchpad/test.html)",
+      "Bash(python3 -)"
+    ]
+  }
+}

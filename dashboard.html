@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>vault.tahani.dev</title>
+
+<script>
+/* ============================================================
+   AUTH GATE — auth.html issues a one-time token when the PIN
+   is entered correctly; this page consumes it immediately.
+   Any refresh or direct visit therefore bounces back through
+   index.html -> auth.html and requires the PIN again.
+============================================================ */
+/*(function(){
+    try{
+        if(sessionStorage.getItem('vault_auth') !== '1'){
+            location.replace('index.html');
+            return;
+        }
+        sessionStorage.removeItem('vault_auth');   // one-time: refresh re-locks
+    }catch(err){
+        location.replace('index.html');
+    }
+    // restored from the back-forward cache (back button) -> re-lock too
+    addEventListener('pageshow', function(e){
+        if(e.persisted) location.replace('index.html');
+    });
+})();
+</script>
+
+<script>
+/* THEME BOOTSTRAP — applied before first paint so there is no flash.
+   Saved from the Settings panel; 'meadow' is the default (no attribute).
+   Re-applied on back-forward cache restores and cross-tab changes. */
+(function(){
+    function applyStoredTheme(){
+        try{
+            var t = localStorage.getItem('vault_theme');
+            if(t === 'noir' || t === 'blossom'){
+                document.documentElement.setAttribute('data-theme', t);
+            }else{
+                document.documentElement.removeAttribute('data-theme');
+            }
+        }catch(e){}
+    }
+    applyStoredTheme();
+    addEventListener('pageshow', applyStoredTheme);
+    addEventListener('storage', applyStoredTheme);
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kranky&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   BASE
+============================================================ */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --bg1:#c0f432;
+    --bg2:#a9c971;
+    --accent:#8ef67d;
+    --accent-ink:#0b4403;
+    --secondary:#D9F2E0;
+    --highlight:#EDF7F0;
+    --text:#0b4403;
+    --text-soft:rgba(0, 0, 0, 0.55);
+    --text-faint:rgba(47,59,52,.35);
+    --glass:rgba(205, 242, 176, 0.63);
+    --glass-border:rgba(99, 245, 26, 0.65);
+    --shadow:0 24px 60px -18px rgba(111,139,88,.22), 0 6px 18px -6px rgba(47,59,52,.06);
+    --blob1:#08a308;
+    --blob2:#8ce82f;
+    --blob3:#65a525;
+    --grid:rgba(255,255,255,.26);
+    --hud:rgba(255,255,255,.9);
+    --hud-strong:#fff;
+    --curve:rgba(255,255,255,.38);
+    --surface-rgb:255,255,255;
+    --divider:rgba(47,59,52,.07);
+    --radius-xl:34px;
+    --chip:66px;
+    --chip-right:250px;
+}
+
+/* THEME — Noir: elegant, minimal dark */
+html[data-theme="noir"]{
+    --bg1:#1a1c21;
+    --bg2:#0b0c0e;
+    --accent:#e8e3d8;
+    --accent-ink:#141519;
+    --text:#ececec;
+    --text-soft:rgba(255,255,255,.62);
+    --text-faint:rgba(255,255,255,.32);
+    --glass:rgba(22,24,28,.62);
+    --glass-border:rgba(255,255,255,.10);
+    --shadow:0 24px 60px -18px rgba(0,0,0,.6), 0 6px 18px -6px rgba(0,0,0,.4);
+    --blob1:#26292f;
+    --blob2:#31353d;
+    --blob3:#1f2126;
+    --grid:rgba(255,255,255,.045);
+    --hud:rgba(255,255,255,.72);
+    --hud-strong:#fff;
+    --curve:rgba(255,255,255,.14);
+    --surface-rgb:36,39,45;
+    --divider:rgba(255,255,255,.08);
+}
+
+/* THEME — Blossom: white, with subtle pink */
+html[data-theme="blossom"]{
+    --bg1:#ffffff;
+    --bg2:#fbeef3;
+    --accent:#f5b8cd;
+    --accent-ink:#5c2e40;
+    --text:#4a3038;
+    --text-soft:rgba(74,48,56,.6);
+    --text-faint:rgba(74,48,56,.34);
+    --glass:rgba(255,255,255,.72);
+    --glass-border:rgba(238,182,203,.55);
+    --shadow:0 24px 60px -18px rgba(214,146,175,.28), 0 6px 18px -6px rgba(74,48,56,.06);
+    --blob1:#f6c6d8;
+    --blob2:#fbdde8;
+    --blob3:#f2b9cf;
+    --grid:rgba(230,164,190,.2);
+    --hud:rgba(163,98,124,.85);
+    --hud-strong:#8f4f6b;
+    --curve:rgba(214,146,175,.45);
+    --surface-rgb:255,255,255;
+    --divider:rgba(163,98,124,.12);
+}
+
+html,body{
+    height:100%;
+}
+
+body{
+    font-family:'Quicksand',sans-serif;
+    background:radial-gradient(circle at top,var(--bg1),var(--bg2));
+    color:var(--text);
+    height:100vh;
+    height:100svh;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+}
+
+/* ============================================================
+   BACKGROUND — soft grid, pastel blobs, glow
+============================================================ */
+.bg{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    overflow:hidden;
+}
+
+.bg::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+        linear-gradient(var(--grid) 1px,transparent 1px),
+        linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:30px 30px;
+}
+
+.bg::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 78% 50%,rgba(255,255,255,.10),transparent 46%);
+}
+
+.blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(55px);
+    opacity:.25;
+    animation:blobFloat 10s ease-in-out infinite;
+}
+
+.blob.one{
+    width:300px;
+    height:300px;
+    background:var(--blob1);
+    top:-100px;
+    left:-60px;
+}
+
+.blob.two{
+    width:260px;
+    height:260px;
+    background:var(--blob2);
+    bottom:-90px;
+    left:22%;
+    animation-delay:4s;
+}
+
+.blob.three{
+    width:260px;
+    height:260px;
+    background:var(--blob3);
+    top:16%;
+    right:-80px;
+    opacity:.2;
+    animation-delay:7s;
+}
+
+@keyframes blobFloat{
+    50%{
+        transform:translateY(-18px) scale(1.03);
+    }
+}
+
+.sparkle{
+    position:absolute;
+    color:var(--hud);
+    text-shadow:0 0 12px rgba(255,255,255,.55);
+    animation:twinkle 3s ease-in-out infinite;
+}
+
+@keyframes twinkle{
+    0%,100%{
+        opacity:.3;
+        transform:scale(.8);
+    }
+    50%{
+        opacity:1;
+        transform:scale(1.2);
+    }
+}
+
+/* ============================================================
+   TOP BAR
+============================================================ */
+.topbar{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    z-index:200;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:clamp(18px,3vw,30px) clamp(20px,4vw,48px);
+    pointer-events:none;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.brand span{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:4px;
+    text-transform:uppercase;
+    color:var(--hud);
+    text-shadow:0 1px 8px rgba(111,139,88,.35);
+}
+
+.clock{
+    text-align:right;
+    line-height:1.25;
+}
+
+.clock .time{
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:1px;
+    color:var(--hud-strong);
+    text-shadow:0 1px 10px rgba(47,59,52,.4);
+}
+
+.clock .date{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--hud);
+    text-shadow:0 1px 8px rgba(47,59,52,.35);
+}
+
+/* ============================================================
+   LAYOUT
+============================================================ */
+main{
+    position:relative;
+    z-index:5;
+    height:100%;
+    display:flex;
+    align-items:center;
+}
+
+/* ============================================================
+   INFO PANEL (left)
+============================================================ */
+.panel{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:clamp(16px,4vw,64px);
+    padding-right:0;
+    min-width:0;
+    height:100%;
+    touch-action:none;
+}
+
+.panel-card{
+    width:min(560px,100%);
+    background:var(--glass);
+    backdrop-filter:blur(26px) saturate(140%);
+    -webkit-backdrop-filter:blur(26px) saturate(140%);
+    border:1px solid var(--glass-border);
+    border-radius:var(--radius-xl);
+    box-shadow:var(--shadow);
+    padding:clamp(26px,4vw,48px);
+    position:relative;
+    transition:opacity .38s cubic-bezier(.32,.72,.28,1),
+               transform .38s cubic-bezier(.32,.72,.28,1);
+    max-height:calc(100svh - 140px);
+    overflow-y:auto;
+    scrollbar-width:none;
+}
+
+.panel-card::-webkit-scrollbar{
+    display:none;
+}
+
+/* glass reflection */
+.panel-card::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    height:46%;
+    background:linear-gradient(180deg,rgba(var(--surface-rgb),.42),transparent);
+    border-radius:var(--radius-xl) var(--radius-xl) 60% 60%;
+    pointer-events:none;
+}
+
+.panel-card.out{
+    opacity:0;
+    transform:translateY(14px) scale(.985);
+    transition-duration:.16s;
+}
+
+.panel-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:24px;
+    position:relative;
+}
+
+.tag{
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:2.5px;
+    text-transform:uppercase;
+    color:var(--text-soft);
+    background:rgba(var(--surface-rgb),.6);
+    border:1px solid rgba(var(--surface-rgb),.7);
+    padding:7px 14px;
+    border-radius:999px;
+}
+
+.counter{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:3px;
+    color:var(--text-faint);
+}
+
+.panel-card h1{
+    font-family:'Kranky',serif;
+    font-size:clamp(1.7rem,4vw,2.5rem);
+    font-weight:400;
+    letter-spacing:.5px;
+    margin-bottom:10px;
+    position:relative;
+}
+
+.panel-card .desc{
+    font-size:clamp(.9rem,1.6vw,1rem);
+    font-weight:500;
+    line-height:1.65;
+    color:var(--text-soft);
+    max-width:46ch;
+    position:relative;
+}
+
+.actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:30px;
+    position:relative;
+}
+
+.btn{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    padding:14px 24px;
+    border-radius:999px;
+    font-family:'Quicksand',sans-serif;
+    font-size:13.5px;
+    font-weight:700;
+    letter-spacing:.4px;
+    text-decoration:none;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:transform .28s cubic-bezier(.32,.72,.28,1),
+               box-shadow .28s ease,
+               background .28s ease;
+    -webkit-tap-highlight-color:transparent;
+}
+
+.btn svg{
+    width:15px;
+    height:15px;
+    transition:transform .28s cubic-bezier(.32,.72,.28,1);
+}
+
+.btn.primary{
+    background:var(--accent);
+    color:var(--accent-ink);
+    box-shadow:0 14px 28px -10px color-mix(in srgb,var(--accent) 60%,transparent);
+}
+
+.btn.primary:hover{
+    transform:translateY(-3px);
+    box-shadow:0 20px 36px -10px color-mix(in srgb,var(--accent) 75%,transparent);
+}
+
+.btn.primary:hover svg{
+    transform:translate(2px,-2px);
+}
+
+.btn.ghost{
+    background:rgba(var(--surface-rgb),.55);
+    border-color:rgba(var(--surface-rgb),.75);
+    color:var(--text-soft);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+}
+
+.btn.ghost:hover{
+    transform:translateY(-3px);
+    background:rgba(var(--surface-rgb),.8);
+    color:var(--text);
+    box-shadow:0 14px 26px -12px rgba(47,59,52,.16);
+}
+
+.btn:active{
+    transform:translateY(-1px) scale(.97);
+}
+
+.panel-foot{
+    margin-top:30px;
+    padding-top:20px;
+    border-top:1px solid var(--divider);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    position:relative;
+}
+
+.panel-foot .url{
+    font-size:11.5px;
+    font-weight:600;
+    letter-spacing:1px;
+    color:var(--text-faint);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.panel-foot .kbd-hint{
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    white-space:nowrap;
+}
+
+.kbd{
+    display:inline-block;
+    padding:2px 7px;
+    border-radius:6px;
+    background:rgba(var(--surface-rgb),.7);
+    border:1px solid var(--divider);
+    font-size:10px;
+    margin-right:2px;
+}
+
+/* ============================================================
+   CURVED WHEEL (right)
+============================================================ */
+.wheel{
+    position:relative;
+    width:clamp(400px,44vw,720px);
+    height:100%;
+    flex-shrink:0;
+    touch-action:none;
+    user-select:none;
+    -webkit-user-select:none;
+    cursor:grab;
+    z-index:10;
+}
+
+.wheel.dragging{
+    cursor:grabbing;
+}
+
+/* fade top & bottom */
+.wheel-mask{
+    position:absolute;
+    inset:0;
+    mask-image:linear-gradient(180deg,transparent 2%,black 20%,black 80%,transparent 98%);
+    -webkit-mask-image:linear-gradient(180deg,transparent 2%,black 20%,black 80%,transparent 98%);
+}
+
+.wheel-curve{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    overflow:visible;
+    pointer-events:none;
+}
+
+.wheel-curve path{
+    fill:none;
+    stroke:var(--curve);
+    stroke-width:1.5;
+}
+
+.w-item{
+    position:absolute;
+    top:50%;
+    right:var(--chip-right);
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-top:calc(var(--chip) / -2);
+    height:var(--chip);
+    will-change:transform,opacity,filter;
+    transform-origin:calc(100% - var(--chip) / 2) center;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+}
+
+.w-label{
+    font-size:clamp(13px,1.6vw,18px);
+    font-weight:600;
+    letter-spacing:.3px;
+    color:var(--hud);
+    text-shadow:0 1px 6px rgba(111,139,88,.4);
+    white-space:nowrap;
+    padding:8px 16px;
+    border-radius:999px;
+    border:1px solid transparent;
+    transition:color .35s ease,background .35s ease,
+               border-color .35s ease,box-shadow .35s ease;
+}
+
+.w-chip{
+    width:var(--chip);
+    height:var(--chip);
+    flex-shrink:0;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(var(--surface-rgb),.5);
+    border:1px solid rgba(var(--surface-rgb),.65);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    color:var(--tint,#6FA287);
+    box-shadow:0 8px 20px -8px rgba(47,59,52,.10);
+    transition:background .35s ease,border-color .35s ease,
+               box-shadow .35s ease;
+}
+
+.w-chip svg{
+    width:40%;
+    height:40%;
+}
+
+.w-item:hover .w-chip{
+    background:rgba(var(--surface-rgb),.85);
+}
+
+.w-item.active .w-label{
+    color:var(--text);
+    text-shadow:none;
+    font-weight:700;
+    background:rgba(var(--surface-rgb),.85);
+    border-color:rgba(var(--surface-rgb),.9);
+    box-shadow:0 10px 24px -10px rgba(47,59,52,.18);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+}
+
+.w-item.active .w-chip{
+    background:rgb(var(--surface-rgb));
+    border-color:color-mix(in srgb,var(--tint,#A8D5BA) 55%,white);
+    box-shadow:0 0 0 5px color-mix(in srgb,var(--tint,#A8D5BA) 22%,transparent),
+               0 16px 32px -10px color-mix(in srgb,var(--tint,#A8D5BA) 60%,transparent);
+}
+
+/* drag handle on the curve — a four-point star */
+.handle{
+    position:absolute;
+    top:0;
+    left:0;
+    width:42px;
+    height:42px;
+    opacity:.82;
+    cursor:grab;
+    z-index:12;
+    will-change:transform;
+    transition:opacity .3s ease;
+}
+
+.handle::before{
+    content:"";
+    position:absolute;
+    inset:4px;
+    background:var(--text);
+    clip-path:polygon(50% 0%, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0% 50%, 37% 37%);
+    filter:drop-shadow(0 6px 12px rgba(47,59,52,.4)) drop-shadow(0 0 6px rgba(255,255,255,.35));
+    animation:handleTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes handleTwinkle{
+    0%,100%{
+        opacity:.7;
+        transform:scale(.92);
+        filter:drop-shadow(0 6px 12px rgba(47,59,52,.35)) drop-shadow(0 0 6px rgba(255,255,255,.35));
+    }
+    50%{
+        opacity:1;
+        transform:scale(1.08);
+        filter:drop-shadow(0 6px 12px rgba(47,59,52,.35)) drop-shadow(0 0 18px rgba(255,255,255,.9));
+    }
+}
+
+.handle:hover{
+    opacity:1;
+}
+
+.handle:hover::before{
+    animation-play-state:paused;
+    opacity:1;
+    transform:scale(1.08);
+    filter:drop-shadow(0 6px 12px rgba(47,59,52,.35)) drop-shadow(0 0 18px rgba(255,255,255,.9));
+}
+
+.handle.grabbed{
+    cursor:grabbing;
+    opacity:1;
+}
+
+/* ============================================================
+   BOTTOM HINT
+============================================================ */
+.hint{
+    position:fixed;
+    bottom:22px;
+    left:clamp(20px,4vw,48px);
+    z-index:20;
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:2.5px;
+    text-transform:uppercase;
+    color:var(--hud);
+    text-shadow:0 1px 6px rgba(111,139,88,.4);
+    pointer-events:none;
+}
+
+/* ============================================================
+   THEME PICKER (settings panel)
+============================================================ */
+.themes{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(128px,1fr));
+    gap:12px;
+    margin-top:28px;
+    position:relative;
+}
+
+.theme-opt{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:4px;
+    padding:13px;
+    border-radius:20px;
+    background:rgba(var(--surface-rgb),.45);
+    border:1px solid rgba(var(--surface-rgb),.6);
+    font-family:'Quicksand',sans-serif;
+    text-align:left;
+    cursor:pointer;
+    transition:transform .28s cubic-bezier(.32,.72,.28,1),
+               box-shadow .28s ease,border-color .28s ease;
+    -webkit-tap-highlight-color:transparent;
+}
+
+.theme-opt:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 24px -12px rgba(47,59,52,.2);
+}
+
+.theme-opt.selected{
+    border-color:color-mix(in srgb,var(--accent) 80%,transparent);
+    box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent);
+}
+
+.theme-swatch{
+    width:100%;
+    height:42px;
+    border-radius:12px;
+    border:1px solid var(--divider);
+    margin-bottom:6px;
+}
+
+.theme-swatch.meadow{
+    background:linear-gradient(135deg,#c0f432,#a9c971 58%,#8ef67d);
+}
+
+.theme-swatch.noir{
+    background:linear-gradient(135deg,#26292f,#0b0c0e 62%,#e8e3d8);
+}
+
+.theme-swatch.blossom{
+    background:linear-gradient(135deg,#ffffff,#fbeef3 55%,#f5b8cd);
+}
+
+.theme-name{
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--text);
+}
+
+.theme-hint{
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--text-faint);
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width:900px){
+    :root{
+        --chip:48px;
+        --chip-right:80px;
+    }
+
+    .wheel{
+        width:clamp(260px,40vw,340px);
+    }
+
+    .panel{
+        padding:16px;
+        padding-right:0;
+    }
+
+    .panel-card{
+        padding:26px;
+    }
+
+    .panel-foot .kbd-hint{
+        display:none;
+    }
+}
+
+@media (max-width:640px){
+    :root{
+        --chip:50px;
+        --chip-right:52px;
+    }
+
+    .topbar{
+        padding:14px 16px;
+        padding-top:max(14px, env(safe-area-inset-top));
+    }
+
+    .brand span{
+        font-size:11px;
+        letter-spacing:3px;
+    }
+
+    .wheel{
+        width:37.5vw;
+        min-width:120px;
+    }
+
+    .w-label{
+        display:none;
+    }
+
+    .panel{
+        padding:12px;
+        padding-right:0;
+        padding-top:70px;
+        padding-bottom:52px;
+    }
+
+    .panel-card{
+        padding:22px;
+        border-radius:26px;
+    }
+
+    .actions{
+        flex-direction:column;
+    }
+
+    .btn{
+        justify-content:center;
+    }
+
+    .hint{
+        display:none;
+    }
+}
+
+@media (prefers-reduced-motion:reduce){
+    *{
+        animation-duration:.01s !important;
+        transition-duration:.01s !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- BACKGROUND -->
+<div class="bg">
+    <div class="blob one"></div>
+    <div class="blob two"></div>
+    <div class="blob three"></div>
+    <span class="sparkle" style="top:9%;left:7%;font-size:15px;">✦</span>
+    <span class="sparkle" style="top:15%;left:47%;font-size:10px;animation-delay:1.1s;">✦</span>
+    <span class="sparkle" style="top:11%;right:16%;font-size:13px;animation-delay:2.3s;">✦</span>
+    <span class="sparkle" style="top:46%;left:4%;font-size:11px;animation-delay:1.7s;">✦</span>
+    <span class="sparkle" style="bottom:16%;left:11%;font-size:12px;animation-delay:.6s;">✦</span>
+    <span class="sparkle" style="bottom:12%;left:45%;font-size:9px;animation-delay:3s;">✦</span>
+    <span class="sparkle" style="bottom:22%;right:9%;font-size:14px;animation-delay:2s;">✦</span>
+    <span class="sparkle" style="top:60%;right:5%;font-size:10px;animation-delay:.9s;">✦</span>
+    
+</div>
+
+<!-- TOP BAR -->
+<header class="topbar">
+    <div class="brand">
+        <span>tahani.dev</span>
+    </div>
+    <div class="clock">
+        <div class="time" id="clockTime">--:--</div>
+        <div class="date" id="clockDate">&nbsp;</div>
+    </div>
+</header>
+
+<!-- MAIN -->
+<main>
+    <section class="panel">
+        <div class="panel-card" id="panelCard"></div>
+    </section>
+
+    <aside class="wheel" id="wheel">
+        <div class="wheel-mask">
+            <svg class="wheel-curve" id="wheelCurve" aria-hidden="true">
+                <path id="curvePath" d=""></path>
+            </svg>
+            <div id="wheelItems"></div>
+        </div>
+        <div class="handle" id="handle"></div>
+    </aside>
+</main>
+
+
+<script>
+/* ============================================================
+   ICONS — inline SVG (stroke style)
+============================================================ */
+const ICONS = {
+    home:      '<path d="M3 10.8 12 3l9 7.8"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5"/><path d="M9.5 21v-6h5v6"/>',
+    globe:     '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.6 4 5.7 4 9s-1.4 6.4-4 9c-2.6-2.6-4-5.7-4-9s1.4-6.4 4-9z"/>',
+    vault:     '<rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v9.5A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V9"/><path d="M9.8 13.5h4.4"/>',
+    github:    '<path fill="currentColor" stroke="none" d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2.17c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.66.41.36.78 1.06.78 2.14v3.17c0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/>',
+    container: '<path d="M21 8.2 12 3.4 3 8.2v7.6l9 4.8 9-4.8z"/><path d="M3 8.2l9 4.8 9-4.8"/><path d="M12 13v8.6"/>',
+    server:    '<rect x="3" y="4" width="18" height="7" rx="2.2"/><rect x="3" y="13" width="18" height="7" rx="2.2"/><path d="M7 7.5h.01M7 16.5h.01"/><path d="M11 7.5h3M11 16.5h3"/>',
+    chart:     '<path d="M4 20h16"/><path d="M7 20v-5.5"/><path d="M12 20V8"/><path d="M17 20v-8.5"/><path d="M5 10.5 10 6l4 3 5-5"/>',
+    chat:      '<path d="M21 11.6a8.5 8.5 0 0 1-8.5 8.5c-1.5 0-2.9-.38-4.1-1.05L3 20.2l1.15-5.2A8.5 8.5 0 1 1 21 11.6z"/>',
+    spark:     '<path d="M12 3v18"/><path d="M3 12h18"/><path d="M5.9 5.9l12.2 12.2"/><path d="M18.1 5.9 5.9 18.1"/>',
+    figma:     '<path d="M12 2.5H8.8a3.2 3.2 0 0 0 0 6.4H12z"/><path d="M12 8.9H8.8a3.2 3.2 0 0 0 0 6.4H12z"/><path d="M12 2.5h3.2a3.2 3.2 0 0 1 0 6.4H12z"/><circle cx="15.2" cy="12.1" r="3.2"/><path d="M12 15.3v3a3.2 3.2 0 1 1-3.2-3z"/>',
+    code:      '<path d="M8.5 6.5 3 12l5.5 5.5"/><path d="M15.5 6.5 21 12l-5.5 5.5"/>',
+    flame:     '<path d="M12 21.5c4 0 6.8-2.5 6.8-6.3 0-2.9-1.9-5.2-3.3-6.7-1.5-1.5-2.5-3.4-3-6-.5 2.9-1.5 4.9-3 6.9-1.4 1.9-4.3 3.8-4.3 5.8 0 3.8 2.8 6.3 6.8 6.3z"/>',
+    triangle:  '<path d="M12 4.5 21 20H3z"/>',
+    diamond:   '<path d="M12 2.5 21.5 12 12 21.5 2.5 12z"/><path d="M7 12a5 5 0 0 0 10 0"/>',
+    folder:    '<path d="M3 7.2A2.2 2.2 0 0 1 5.2 5h4l2.2 2.4h7.4A2.2 2.2 0 0 1 21 9.6v8.2a2.2 2.2 0 0 1-2.2 2.2H5.2A2.2 2.2 0 0 1 3 17.8z"/>',
+    terminal:  '<rect x="2.5" y="4" width="19" height="16" rx="3"/><path d="M6.5 9l3.5 3-3.5 3"/><path d="M12.5 15.5h5"/>',
+    book:      '<path d="M4.5 5.2A2.2 2.2 0 0 1 6.7 3h12.8v15.5H6.7a2.2 2.2 0 0 0-2.2 2.2z"/><path d="M4.5 20.9a2.2 2.2 0 0 1 2.2-2.2h12.8"/><path d="M9 7.5h6"/>',
+    plug:      '<path d="M9.5 7V3.5"/><path d="M14.5 7V3.5"/><path d="M7 7h10v3.8a5 5 0 0 1-10 0z"/><path d="M12 15.8v4.7"/>',
+    gear:      '<circle cx="12" cy="12" r="3.4"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/>',
+    arrow:     '<path d="M6 18 18 6"/><path d="M9 6h9v9"/>'
+};
+
+function iconSvg(name){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[name] || ICONS.globe) + '</svg>';
+}
+
+/* ============================================================
+   APPS — edit this array to add / remove / reorder launchers.
+
+   Each item:
+   {
+     id:          unique slug ('settings' renders the theme picker)
+     title:       display name
+     tag:         small label shown at the top of the panel
+     icon:        key from ICONS above (used on the wheel chip)
+     color:       tint used for the wheel chip glow
+     description: one or two calm sentences
+     primary:     { label, url }                (main button)
+     secondary:   { label, url }                (optional)
+   }
+
+   A url of '#' reloads this page — which re-locks the vault
+   (the auth gate then asks for the PIN again).
+============================================================ */
+const APPS = [
+    {
+        id:'dashboard', title:'Dashboard', tag:'Home', color:'#6FA287',
+        description:'Your personal operating system. One calm place to reach everything you own — sites, servers, tools and services.',
+        primary:{ label:'Lock', url:'#' }
+    },
+    {
+        id:'codebridge', title:'CodeBridge', tag:'Website', icon:'globe', color:'#58B99D',
+        description:'Your main website and public home on the internet.',
+        primary:{ label:'Open CodeBridge', url:'https://codebridge.dev' },
+        secondary:{ label:'GitHub Repository', url:'https://github.com/wizardryyy/codebridge' }
+    },
+    {
+        id:'vaulted', title:'Vaulted', tag:'Web App', icon:'vault', color:'#8AAE6C',
+        description:'Personal media tracking application. Everything you watch, read and play — vaulted.',
+        primary:{ label:'Open Website', url:'https://vaulted.app' },
+        secondary:{ label:'GitHub Repository', url:'https://github.com/wizardryyy/vaulted' }
+    },
+    {
+        id:'github', title:'GitHub', tag:'Development', icon:'github', color:'#5E7A6C',
+        description:'Your repositories, issues and pull requests. The source of everything you build.',
+        primary:{ label:'Open GitHub', url:'https://github.com' },
+        secondary:{ label:'View Repositories', url:'https://github.com/wizardryyy?tab=repositories' }
+    },
+    {
+        id:'portainer', title:'Portainer', tag:'Self-hosted', icon:'container', color:'#4FA8A8',
+        description:'Docker container management for your home server. Stacks, images, volumes and logs.',
+        primary:{ label:'Open Portainer', url:'https://localhost:9443' },
+        secondary:{ label:'SSH', url:'ssh://root@homeserver' }
+    },
+    {
+        id:'casaos', title:'CasaOS', tag:'Self-hosted', icon:'server', color:'#6E9ECF',
+        description:'Your home cloud. Apps, storage and system control in one place.',
+        primary:{ label:'Open CasaOS', url:'http://casaos.local' }
+    },
+    {
+        id:'grafana', title:'Grafana', tag:'Monitoring', icon:'chart', color:'#D08770',
+        description:'Dashboards and metrics for everything running in your ecosystem.',
+        primary:{ label:'Open Grafana', url:'http://localhost:3000' }
+    },
+    {
+        id:'chatgpt', title:'ChatGPT', tag:'AI', icon:'chat', color:'#7CB5A0',
+        description:'AI assistant for quick answers, drafts and ideas.',
+        primary:{ label:'Open ChatGPT', url:'https://chatgpt.com' }
+    },
+    {
+        id:'claude', title:'Claude', tag:'AI', icon:'spark', color:'#C99B6E',
+        description:'AI assistant for deep work, code and long-form thinking.',
+        primary:{ label:'Open Claude', url:'https://claude.ai' }
+    },
+    {
+        id:'figma', title:'Figma', tag:'Design', icon:'figma', color:'#9B8CCF',
+        description:'Interface design, prototypes and visual explorations.',
+        primary:{ label:'Open Figma', url:'https://figma.com' }
+    },
+    {
+        id:'vscode', title:'VS Code', tag:'Development', icon:'code', color:'#6E9ECF',
+        description:'Your editor. Open it in the browser or jump to the desktop app.',
+        primary:{ label:'Open vscode.dev', url:'https://vscode.dev' },
+        secondary:{ label:'Desktop App', url:'vscode://' }
+    },
+    {
+        id:'firebase', title:'Firebase', tag:'Backend', icon:'flame', color:'#CFA45E',
+        description:'Auth, databases and hosting for your apps.',
+        primary:{ label:'Open Console', url:'https://console.firebase.google.com' }
+    },
+    {
+        id:'vercel', title:'Vercel', tag:'Deploy', icon:'triangle', color:'#5E7A6C',
+        description:'Deployments, previews and domains for your frontend projects.',
+        primary:{ label:'Open Vercel', url:'https://vercel.com/dashboard' }
+    },
+    {
+        id:'netlify', title:'Netlify', tag:'Deploy', icon:'diamond', color:'#4FA8A8',
+        description:'Static sites, functions and forms — deployed from git.',
+        primary:{ label:'Open Netlify', url:'https://app.netlify.com' }
+    },
+    {
+        id:'files', title:'Files', tag:'System', icon:'folder', color:'#8AAE6C',
+        description:'Browse the files living on your home server.',
+        primary:{ label:'Open Files', url:'http://localhost:8080' }
+    },
+    {
+        id:'ssh', title:'SSH', tag:'System', icon:'terminal', color:'#2F3B34',
+        description:'Direct terminal access to your machines.',
+        primary:{ label:'Connect', url:'ssh://root@homeserver' }
+    },
+    {
+        id:'docs', title:'Documentation', tag:'Reference', icon:'book', color:'#7CB5A0',
+        description:'API references and language docs, all in one reader.',
+        primary:{ label:'Open DevDocs', url:'https://devdocs.io' }
+    },
+    {
+        id:'apis', title:'APIs', tag:'Reference', icon:'plug', color:'#C98A9E',
+        description:'Test, inspect and explore your API endpoints.',
+        primary:{ label:'Open API Client', url:'https://hoppscotch.io' }
+    },
+    {
+        id:'settings', title:'Settings', tag:'System', icon:'gear', color:'#8A8F98',
+        description:'Make the vault yours. Pick a theme below — your choice is saved on this device and restored on every visit.'
+    }
+];
+
+/* ============================================================
+   THEMES — picked from the Settings panel, kept in localStorage
+============================================================ */
+const THEMES = [
+    { id:'meadow',  name:'Meadow',  hint:'Fresh green'  },
+    { id:'noir',    name:'Noir',    hint:'Elegant dark' },
+    { id:'blossom', name:'Blossom', hint:'Soft pink'    }
+];
+
+function currentTheme(){
+    return document.documentElement.getAttribute('data-theme') || 'meadow';
+}
+
+function applyTheme(id){
+    if(id === 'meadow'){
+        document.documentElement.removeAttribute('data-theme');
+    } else {
+        document.documentElement.setAttribute('data-theme', id);
+    }
+    try{ localStorage.setItem('vault_theme', id); }catch(e){}
+}
+
+/* ============================================================
+   CLOCK
+============================================================ */
+const clockTime = document.getElementById('clockTime');
+const clockDate = document.getElementById('clockDate');
+
+function tickClock(){
+    const now = new Date();
+    clockTime.textContent = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+    clockDate.textContent = now.toLocaleDateString([], { weekday:'long', day:'numeric', month:'long' });
+}
+tickClock();
+setInterval(tickClock, 20000);
+
+/* ============================================================
+   BUILD WHEEL ITEMS
+============================================================ */
+const wheel      = document.getElementById('wheel');
+const wheelItems = document.getElementById('wheelItems');
+const curveSvg   = document.getElementById('wheelCurve');
+const curvePath  = document.getElementById('curvePath');
+const handle     = document.getElementById('handle');
+const panelCard  = document.getElementById('panelCard');
+
+const N = APPS.length;
+const itemEls = APPS.map((app, i) => {
+    const el = document.createElement('div');
+    el.className = 'w-item';
+    el.style.setProperty('--tint', app.color);
+    el.dataset.index = i;
+    el.innerHTML = '<span class="w-label">' + app.title + '</span>' +
+                   '<span class="w-chip">' + iconSvg(app.icon) + '</span>';
+    wheelItems.appendChild(el);
+    return el;
+});
+
+/* ============================================================
+   GEOMETRY  (recomputed on resize)
+============================================================ */
+let W = 0, H = 0;         // wheel size
+let R = 0;                // arc radius through the chips
+let Rg = 0;               // arc radius of the guide line / handle
+let STEP = 0;             // angle between items (rad)
+let PX_PER_ITEM = 0;      // vertical px between adjacent items near center
+let Cx = 0, Cy = 0;       // circle center (off-screen, to the right)
+
+function computeGeometry(){
+    const rect = wheel.getBoundingClientRect();
+    W = rect.width;
+    H = rect.height;
+
+    const rootStyles = getComputedStyle(document.documentElement);
+    const chip       = parseFloat(rootStyles.getPropertyValue('--chip')) || 56;
+    const chipRight  = parseFloat(rootStyles.getPropertyValue('--chip-right')) || 86;
+
+    R = Math.min(Math.max(H * 0.56, 260), 720);
+    const gapPx = Math.min(Math.max(H * 0.125, 62), 112);
+    STEP = gapPx / R;
+    PX_PER_ITEM = R * Math.sin(STEP);
+
+    const chipCenterX = W - chipRight - chip / 2;
+    Cx = chipCenterX + R;
+    Cy = H / 2;
+    Rg = R - chip / 2 - 22;
+
+    // guide curve
+    curveSvg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    let d = '';
+    for(let a = -1.25; a <= 1.251; a += 0.05){
+        const x = Cx - Rg * Math.cos(a);
+        const y = Cy + Rg * Math.sin(a);
+        d += (d ? ' L ' : 'M ') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+    curvePath.setAttribute('d', d);
+}
+
+/* ============================================================
+   SPRING PHYSICS
+============================================================ */
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let target  = 0;      // where we want to be (float index)
+let current = 0;      // where we are (float index)
+let vel     = 0;      // spring velocity
+let hOff    = 0;      // handle offset along the curve (px)
+let hOffTarget = 0;
+
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+let lastTime = performance.now();
+
+function frame(now){
+    let dt = (now - lastTime) / 1000;
+    lastTime = now;
+    dt = Math.min(dt, 1 / 30);
+
+    if(reduceMotion){
+        current = target;
+        vel = 0;
+    } else {
+        // slightly under-damped spring — gentle overshoot
+        vel += (target - current) * 150 * dt;
+        vel *= Math.exp(-21 * dt);
+        current += vel * dt;
+        if(Math.abs(target - current) < 0.0004 && Math.abs(vel) < 0.004){
+            current = target;
+            vel = 0;
+        }
+    }
+
+    // handle springs back to center after release
+    hOff += (hOffTarget - hOff) * Math.min(1, dt * 14);
+
+    layout();
+    requestAnimationFrame(frame);
+}
+
+/* ============================================================
+   LAYOUT — place every item on the arc
+============================================================ */
+let activeIdx = -1;
+
+function layout(){
+    for(let i = 0; i < N; i++){
+        const el = itemEls[i];
+        const a  = (i - current) * STEP;
+
+        if(Math.abs(a) > 1.35){
+            el.style.visibility = 'hidden';
+            continue;
+        }
+        el.style.visibility = 'visible';
+
+        const dy = R * Math.sin(a);
+        const dx = R * (1 - Math.cos(a));
+        const d  = Math.abs(i - current);
+
+        const scale = Math.max(0.6, 1 - d * 0.085);
+        const op    = Math.max(0, 1 - d * 0.26);
+        const blur  = Math.max(0, d - 1.15) * 1.15;
+        const rot   = a * 57.2958 * 0.85;
+
+        el.style.transform =
+            'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) ' +
+            'rotate(' + rot.toFixed(2) + 'deg) scale(' + scale.toFixed(3) + ')';
+        el.style.opacity = op.toFixed(3);
+        el.style.filter  = blur > 0.06 ? 'blur(' + blur.toFixed(2) + 'px)' : 'none';
+        el.style.zIndex  = String(100 - Math.round(d * 10));
+    }
+
+    // handle along the guide curve
+    const ah = Rg ? hOff / Rg : 0;
+    const hx = Cx - Rg * Math.cos(ah);
+    const hy = Cy + Rg * Math.sin(ah);
+    handle.style.transform =
+        'translate(' + hx.toFixed(1) + 'px,' + hy.toFixed(1) + 'px) ' +
+        'translate(-50%,-50%) rotate(' + (ah * 57.2958).toFixed(1) + 'deg)';
+
+    // active (centered) state — the panel follows whatever is centered
+    const idx = clamp(Math.round(target), 0, N - 1);
+    if(idx !== activeIdx){
+        if(activeIdx >= 0) itemEls[activeIdx].classList.remove('active');
+        itemEls[idx].classList.add('active');
+        activeIdx = idx;
+        setPanel(idx);
+    }
+}
+
+/* ============================================================
+   PANEL RENDERING
+============================================================ */
+let renderedIdx = -1;
+let switchTimer = null;
+
+function pad(n){ return String(n).padStart(2, '0'); }
+
+function buildPanel(app, idx){
+    let html = '';
+
+    html += '<div class="panel-top">';
+    html +=   '<span class="tag">' + app.tag + '</span>';
+    html +=   '<span class="counter">' + pad(idx + 1) + ' / ' + pad(N) + '</span>';
+    html += '</div>';
+
+    html += '<h1>' + app.title + '</h1>';
+    html += '<p class="desc">' + app.description + '</p>';
+
+    // settings panel — theme picker instead of launch buttons
+    if(app.id === 'settings'){
+        html += '<div class="themes">';
+        THEMES.forEach(t => {
+            html += '<button class="theme-opt' + (t.id === currentTheme() ? ' selected' : '') +
+                    '" data-theme-pick="' + t.id + '">' +
+                    '<span class="theme-swatch ' + t.id + '"></span>' +
+                    '<span class="theme-name">' + t.name + '</span>' +
+                    '<span class="theme-hint">' + t.hint + '</span>' +
+                    '</button>';
+        });
+        html += '</div>';
+
+        html += '<div class="panel-foot">';
+        html +=   '<span class="url">saved on this device</span>';
+        html +=   '<span class="kbd-hint"><span class="kbd">&uarr;</span><span class="kbd">&darr;</span> browse</span>';
+        html += '</div>';
+        return html;
+    }
+
+    html += '<div class="actions">';
+    html += '<a class="btn primary" href="' + app.primary.url + '" data-launch>' +
+            app.primary.label + iconSvg('arrow') + '</a>';
+    if(app.secondary){
+        html += '<a class="btn ghost" href="' + app.secondary.url + '" data-launch>' +
+                app.secondary.label + '</a>';
+    }
+    html += '</div>';
+
+    html += '<div class="panel-foot">';
+    html +=   '<span class="url">' + (app.primary.url === '#' ? (window.location.host || 'local') : app.primary.url.replace(/^[a-z]+:\/\//, '')) + '</span>';
+    html +=   '<span class="kbd-hint"><span class="kbd">Enter</span> launch</span>';
+    html += '</div>';
+
+    return html;
+}
+
+function setPanel(idx){
+    if(idx === renderedIdx) return;
+    renderedIdx = idx;
+    clearTimeout(switchTimer);
+    panelCard.classList.add('out');
+    switchTimer = setTimeout(() => {
+        panelCard.innerHTML = buildPanel(APPS[idx], idx);
+        panelCard.classList.remove('out');
+        updateCardTouch();
+    }, 160);
+}
+
+/* if the card content fits, touch swipes on it browse the wheel;
+   if it overflows, native scrolling wins */
+function updateCardTouch(){
+    panelCard.style.touchAction =
+        panelCard.scrollHeight > panelCard.clientHeight + 4 ? 'pan-y' : 'none';
+}
+
+/* launching — '#' means "this page" */
+function openUrl(url){
+    if(url === '#'){ window.location.reload(); return; }
+    window.open(url, '_blank', 'noopener');
+}
+
+panelCard.addEventListener('click', e => {
+    const t = e.target.closest('[data-theme-pick]');
+    if(t){
+        applyTheme(t.dataset.themePick);
+        panelCard.querySelectorAll('.theme-opt').forEach(b => b.classList.toggle('selected', b === t));
+        return;
+    }
+    const a = e.target.closest('[data-launch]');
+    if(!a) return;
+    e.preventDefault();
+    openUrl(a.getAttribute('href'));
+});
+
+/* ============================================================
+   INPUT — drag / swipe on the wheel
+============================================================ */
+let dragging = false;
+let dragMoved = 0;
+let dragStartY = 0;
+let dragStartTarget = 0;
+let dragStartTime = 0;
+let lastY = 0, lastT = 0, dragVel = 0;
+let dragHitItem = null;
+
+wheel.addEventListener('pointerdown', e => {
+    if(e.target === handle) return;
+    dragging = true;
+    dragMoved = 0;
+    dragStartY = lastY = e.clientY;
+    dragStartTarget = target;
+    dragStartTime = lastT = performance.now();
+    dragVel = 0;
+    dragHitItem = e.target.closest('.w-item');
+    wheel.classList.add('dragging');
+    wheel.setPointerCapture(e.pointerId);
+});
+
+wheel.addEventListener('pointermove', e => {
+    if(!dragging) return;
+    const dy = e.clientY - dragStartY;
+    dragMoved = Math.max(dragMoved, Math.abs(dy));
+
+    const now = performance.now();
+    const dtMs = now - lastT;
+    if(dtMs > 0){
+        dragVel = dragVel * 0.7 + ((e.clientY - lastY) / dtMs) * 0.3;
+    }
+    lastY = e.clientY;
+    lastT = now;
+
+    // dragging the list up moves selection forward
+    target = clamp(dragStartTarget - dy / PX_PER_ITEM, -0.45, N - 0.55);
+});
+
+wheel.addEventListener('pointerup', () => {
+    if(!dragging) return;
+    dragging = false;
+    wheel.classList.remove('dragging');
+
+    const duration = performance.now() - dragStartTime;
+
+    // tap: select the item (the panel follows automatically)
+    if(dragMoved < 7 && duration < 400){
+        if(dragHitItem){
+            target = Number(dragHitItem.dataset.index);
+        } else {
+            target = clamp(Math.round(target), 0, N - 1);
+        }
+        return;
+    }
+
+    // momentum, then snap
+    const fling = -dragVel * 190 / PX_PER_ITEM;
+    target = clamp(Math.round(target + fling), 0, N - 1);
+});
+
+wheel.addEventListener('pointercancel', () => {
+    dragging = false;
+    wheel.classList.remove('dragging');
+    target = clamp(Math.round(target), 0, N - 1);
+});
+
+/* ============================================================
+   INPUT — touch swipe anywhere else on the page (mobile)
+============================================================ */
+const panelSection = document.querySelector('.panel');
+let pDrag = null;
+
+panelSection.addEventListener('pointerdown', e => {
+    if(e.pointerType === 'mouse') return;              // desktop mouse: wheel/drag on the arc instead
+    if(e.target.closest('.btn') || e.target.closest('a')) return;
+    pDrag = {
+        id: e.pointerId,
+        startY: e.clientY,
+        startTarget: target,
+        lastY: e.clientY,
+        lastT: performance.now(),
+        vel: 0,
+        active: false
+    };
+});
+
+panelSection.addEventListener('pointermove', e => {
+    if(!pDrag || e.pointerId !== pDrag.id) return;
+    const dy = e.clientY - pDrag.startY;
+
+    // only start browsing after a real swipe, so taps still click buttons
+    if(!pDrag.active){
+        if(Math.abs(dy) < 10) return;
+        pDrag.active = true;
+        panelSection.setPointerCapture(e.pointerId);
+    }
+
+    const now = performance.now();
+    const dtMs = now - pDrag.lastT;
+    if(dtMs > 0){
+        pDrag.vel = pDrag.vel * 0.7 + ((e.clientY - pDrag.lastY) / dtMs) * 0.3;
+    }
+    pDrag.lastY = e.clientY;
+    pDrag.lastT = now;
+
+    target = clamp(pDrag.startTarget - dy / PX_PER_ITEM, -0.45, N - 0.55);
+});
+
+function endPanelDrag(e){
+    if(!pDrag || e.pointerId !== pDrag.id) return;
+    if(pDrag.active){
+        const fling = -pDrag.vel * 190 / PX_PER_ITEM;
+        target = clamp(Math.round(target + fling), 0, N - 1);
+    }
+    pDrag = null;
+}
+panelSection.addEventListener('pointerup', endPanelDrag);
+panelSection.addEventListener('pointercancel', endPanelDrag);
+
+/* ============================================================
+   INPUT — draggable handle on the curve
+============================================================ */
+let hDragging = false;
+let hStartY = 0;
+let hStartTarget = 0;
+
+handle.addEventListener('pointerdown', e => {
+    hDragging = true;
+    hStartY = e.clientY;
+    hStartTarget = target;
+    handle.classList.add('grabbed');
+    handle.setPointerCapture(e.pointerId);
+    e.stopPropagation();
+});
+
+handle.addEventListener('pointermove', e => {
+    if(!hDragging) return;
+    const span = H * 0.34;
+    const dy = clamp(e.clientY - hStartY, -span, span);
+    hOff = dy;                       // handle follows the finger along the curve
+    hOffTarget = dy;
+    target = clamp(hStartTarget + dy / PX_PER_ITEM, -0.45, N - 0.55);
+});
+
+function releaseHandle(){
+    if(!hDragging) return;
+    hDragging = false;
+    handle.classList.remove('grabbed');
+    hOffTarget = 0;                  // spring back to center
+    target = clamp(Math.round(target), 0, N - 1);
+}
+handle.addEventListener('pointerup', releaseHandle);
+handle.addEventListener('pointercancel', releaseHandle);
+
+/* ============================================================
+   INPUT — mouse wheel / trackpad (anywhere on the page)
+============================================================ */
+let wheelIdleTimer = null;
+
+window.addEventListener('wheel', e => {
+    // let a scrollable panel scroll normally
+    const inPanel = e.target.closest && e.target.closest('.panel-card');
+    if(inPanel && panelCard.scrollHeight > panelCard.clientHeight + 4) return;
+
+    e.preventDefault();
+    target = clamp(target + e.deltaY * 0.0032, -0.45, N - 0.55);
+
+    clearTimeout(wheelIdleTimer);
+    wheelIdleTimer = setTimeout(() => {
+        target = clamp(Math.round(target), 0, N - 1);
+    }, 130);
+}, { passive:false });
+
+/* ============================================================
+   INPUT — keyboard
+============================================================ */
+window.addEventListener('keydown', e => {
+    switch(e.key){
+        case 'ArrowDown':
+        case 'ArrowRight':
+            e.preventDefault();
+            target = clamp(Math.round(target) + 1, 0, N - 1);
+            break;
+        case 'ArrowUp':
+        case 'ArrowLeft':
+            e.preventDefault();
+            target = clamp(Math.round(target) - 1, 0, N - 1);
+            break;
+        case 'Home':
+            e.preventDefault();
+            target = 0;
+            break;
+        case 'End':
+            e.preventDefault();
+            target = N - 1;
+            break;
+        case 'Enter':{
+            const app = APPS[clamp(Math.round(target), 0, N - 1)];
+            if(app.primary) openUrl(app.primary.url);
+            break;
+        }
+    }
+});
+
+/* ============================================================
+   BOOT
+============================================================ */
+window.addEventListener('resize', computeGeometry);
+
+window.addEventListener('resize', updateCardTouch);
+
+computeGeometry();
+setPanel(0);
+itemEls[0].classList.add('active');
+activeIdx = 0;
+
+/* gentle entrance — items spring in from below */
+current = 2.2;
+requestAnimationFrame(frame);
+</script>
+
+</body>
+</html>

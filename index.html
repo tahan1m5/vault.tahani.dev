@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vault.tahani.dev</title>
+
+  <script>
+    /* THEME BOOTSTRAP — same key the dashboard settings panel writes.
+       Applied before first paint, re-applied when the page is restored
+       from the back-forward cache or the theme changes in another tab. */
+    (function(){
+      function applyTheme(){
+        try{
+          var t = localStorage.getItem('vault_theme');
+          if(t === 'noir' || t === 'blossom'){
+            document.documentElement.setAttribute('data-theme', t);
+          }else{
+            document.documentElement.removeAttribute('data-theme');
+          }
+        }catch(e){}
+      }
+      applyTheme();
+      addEventListener('pageshow', applyTheme);
+      addEventListener('storage', applyTheme);
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    :root{
+      --bg1:#d9e7b3;
+      --bg2:#b5cc8d;
+      --green:#6f8b58;
+      --grid:rgba(255,255,255,.06);
+      --blob1:#18e018;
+      --blob2:#8ce82f;
+      --glow:rgba(218,190,7,.22);
+      --ring:rgba(255,255,255,.405);
+      --star-glow:rgba(60,229,8,.9);
+      --hud:rgba(255,255,255,.95);
+      --track:rgba(255,255,255,.22);
+      --track-border:rgba(255,255,255,.16);
+      --fill1:#d4ffc7;
+      --fill2:#94ff8c;
+      --fill3:#d0ffb4;
+      --fill-glow:rgba(133,255,135,.7);
+    }
+
+    /* THEME — Noir: elegant, minimal dark */
+    html[data-theme="noir"]{
+      --bg1:#1a1c21;
+      --bg2:#0b0c0e;
+      --grid:rgba(255,255,255,.045);
+      --blob1:#26292f;
+      --blob2:#31353d;
+      --glow:rgba(232,227,216,.1);
+      --ring:rgba(255,255,255,.18);
+      --star-glow:rgba(232,227,216,.6);
+      --hud:rgba(255,255,255,.8);
+      --track:rgba(255,255,255,.08);
+      --track-border:rgba(255,255,255,.12);
+      --fill1:#e8e3d8;
+      --fill2:#cfc9ba;
+      --fill3:#e8e3d8;
+      --fill-glow:rgba(232,227,216,.35);
+    }
+
+    /* THEME — Blossom: white, with subtle pink */
+    html[data-theme="blossom"]{
+      --bg1:#ffffff;
+      --bg2:#fbeef3;
+      --grid:rgba(230,164,190,.2);
+      --blob1:#f6c6d8;
+      --blob2:#f2b9cf;
+      --glow:rgba(245,184,205,.35);
+      --ring:rgba(214,146,175,.5);
+      --star-glow:rgba(245,184,205,.9);
+      --hud:rgba(163,98,124,.9);
+      --track:rgba(244,196,214,.35);
+      --track-border:rgba(238,182,203,.5);
+      --fill1:#ffd9e6;
+      --fill2:#f5b8cd;
+      --fill3:#ffd9e6;
+      --fill-glow:rgba(245,184,205,.6);
+    }
+
+    body{
+      font-family:'Quicksand',sans-serif;
+      overflow:hidden;
+      background:white;
+    }
+
+    .loading-screen{
+      position:fixed;
+      inset:0;
+      background:radial-gradient(circle at top,var(--bg1),var(--bg2));
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      flex-direction:column;
+      overflow:hidden;
+      transition:opacity 1s ease, visibility 1s ease;
+    }
+
+    .loading-screen::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size:30px 30px;
+    }
+
+    .blob{
+      position:absolute;
+      border-radius:50%;
+      filter:blur(50px);
+      opacity:0.25;
+      animation:blobFloat 10s infinite ease-in-out;
+    }
+
+    .blob.one{
+      width:260px;
+      height:260px;
+      background:var(--blob1);
+      top:-90px;
+      left:-50px;
+    }
+
+    .blob.two{
+      width:220px;
+      height:220px;
+      background:var(--blob2);
+      bottom:-70px;
+      right:-40px;
+      animation-delay:3s;
+    }
+
+    @keyframes blobFloat{
+      0%,100%{
+        transform:translateY(0px);
+      }
+      50%{
+        transform:translateY(-16px);
+      }
+    }
+
+    .logo-wrapper{
+      position:relative;
+      width:320px;
+      height:320px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      z-index:2;
+    }
+
+    .logo-glow{
+      position:absolute;
+      width:190px;
+      height:190px;
+      border-radius:50%;
+      background:var(--glow);
+      filter:blur(40px);
+      animation:pulse 4s infinite ease-in-out;
+    }
+
+    @keyframes pulse{
+      0%,100%{
+        transform:scale(1);
+      }
+      50%{
+        transform:scale(1.1);
+      }
+    }
+
+    .stamp-logo{
+      width:310px;
+      position:relative;
+      z-index:5;
+      animation:float 4s infinite ease-in-out;
+      filter:drop-shadow(0 12px 18px rgba(0,0,0,0.12));
+    }
+
+    @keyframes float{
+      0%,100%{
+        transform:translateY(0px);
+      }
+      50%{
+        transform:translateY(-10px);
+      }
+    }
+
+    .orbit-ring{
+      position:absolute;
+      width:270px;
+      height:270px;
+      border-radius:50%;
+      border:1px dashed var(--ring);
+      animation:orbit 8s linear infinite;
+    }
+
+    @keyframes orbit{
+      from{
+        transform:rotate(0deg);
+      }
+      to{
+        transform:rotate(360deg);
+      }
+    }
+
+    .star{
+      position:absolute;
+      top:-12px;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:24px;
+      filter:drop-shadow(0 0 14px var(--star-glow));
+    }
+
+    .sparkle{
+      position:absolute;
+      color:var(--hud);
+      animation:twinkle 3s infinite ease-in-out;
+      z-index:1;
+    }
+
+    .s1{
+      top:20%;
+      left:18%;
+      font-size:18px;
+    }
+
+    .s2{
+      top:18%;
+      right:20%;
+      font-size:14px;
+      animation-delay:1s;
+    }
+
+    .s3{
+      bottom:22%;
+      left:22%;
+      font-size:14px;
+      animation-delay:1.6s;
+    }
+
+    .s4{
+      bottom:18%;
+      right:18%;
+      font-size:18px;
+      animation-delay:0.8s;
+    }
+
+    @keyframes twinkle{
+      0%,100%{
+        opacity:0.3;
+        transform:scale(0.8);
+      }
+      50%{
+        opacity:1;
+        transform:scale(1.2);
+      }
+    }
+
+    .loading-container{
+      width:min(240px,72vw);
+      margin-top:-6px;
+      z-index:5;
+    }
+
+    .loading-track{
+      width:100%;
+      height:12px;
+      background:var(--track);
+      border-radius:999px;
+      overflow:hidden;
+      border:1px solid var(--track-border);
+      backdrop-filter:blur(8px);
+    }
+
+    .loading-fill{
+      width:0%;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--fill1),var(--fill2),var(--fill3));
+      box-shadow:0 0 16px var(--fill-glow);
+      transition:width 0.25s ease;
+    }
+
+    .loading-text{
+      text-align:center;
+      margin-top:14px;
+      font-size:11px;
+      letter-spacing:4px;
+      color:var(--hud);
+      text-transform:uppercase;
+    }
+
+    @media (max-width:768px){
+
+      .logo-wrapper{
+        width:260px;
+        height:260px;
+      }
+
+      .stamp-logo{
+        width:250px;
+      }
+
+      .orbit-ring{
+        width:220px;
+        height:220px;
+      }
+
+      .star{
+        font-size:20px;
+      }
+
+      .loading-container{
+        width:50vw;
+      }
+
+    }
+
+    @media (max-width:420px){
+
+      .logo-wrapper{
+        transform:scale(0.92);
+      }
+
+      .stamp-logo{
+        width:250px;
+      }
+
+      .loading-screen::before{
+        background-size:24px 24px;
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- LOADING SCREEN -->
+
+  <div class="loading-screen" id="loadingScreen">
+
+    <div class="blob one"></div>
+    <div class="blob two"></div>
+
+    <div class="sparkle s1">✦</div>
+    <div class="sparkle s2">✦</div>
+    <div class="sparkle s3">✦</div>
+    <div class="sparkle s4">✦</div>
+
+    <div class="logo-wrapper">
+
+      <div class="logo-glow"></div>
+
+      <div class="orbit-ring">
+        <div class="star">✿</div>
+      </div>
+
+      <!-- YOUR LOGO -->
+      <img
+        src="Assets/stamp.png"
+        class="stamp-logo"
+        alt="Stamp Logo"
+      />
+
+    </div>
+
+    <div class="loading-container">
+
+      <div class="loading-track">
+        <div class="loading-fill" id="loadingFill"></div>
+      </div>
+
+      <div class="loading-text">
+        Loading...
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    const loadingFill = document.getElementById('loadingFill');
+    const loadingScreen = document.getElementById('loadingScreen');
+
+    let progress = 0;
+
+    const fakeLoader = setInterval(() => {
+
+      progress += Math.random() * 14;
+
+      if(progress >= 100){
+        progress = 100;
+      }
+
+      loadingFill.style.width = progress + '%';
+
+      if(progress === 100){
+
+        clearInterval(fakeLoader);
+
+        setTimeout(() => {
+
+          loadingScreen.style.opacity = '0';
+          loadingScreen.style.visibility = 'hidden';
+
+          setTimeout(() => {
+
+            window.location.href = "auth.html";
+
+          }, 800);
+
+        }, 600);
+
+      }
+
+    }, 250);
+
+  </script>
+
+</body>
+</html>

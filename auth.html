@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vault.tahani.dev</title>
+
+<script>
+/* THEME BOOTSTRAP — same key the dashboard settings panel writes.
+   Applied before first paint, re-applied when the page is restored
+   from the back-forward cache or the theme changes in another tab. */
+(function(){
+    function applyTheme(){
+        try{
+            var t = localStorage.getItem('vault_theme');
+            if(t === 'noir' || t === 'blossom'){
+                document.documentElement.setAttribute('data-theme', t);
+            }else{
+                document.documentElement.removeAttribute('data-theme');
+            }
+        }catch(e){}
+    }
+    applyTheme();
+    addEventListener('pageshow', applyTheme);
+    addEventListener('storage', applyTheme);
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kranky&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --bg1:#d9e7b3;
+    --bg2:#b5cc8d;
+    --grid:rgba(255,255,255,.06);
+    --blob1:#18e018;
+    --blob2:#8ce82f;
+    --ink:#fff;
+    --key-border:rgba(255,255,255,.75);
+    --key-bg:rgba(255,255,255,.08);
+    --key-bg-hover:rgba(255,255,255,.18);
+    --dot-border:rgba(255,255,255,.8);
+    --dot-fill:#fff;
+}
+
+/* THEME — Noir: elegant, minimal dark */
+html[data-theme="noir"]{
+    --bg1:#1a1c21;
+    --bg2:#0b0c0e;
+    --grid:rgba(255,255,255,.045);
+    --blob1:#26292f;
+    --blob2:#31353d;
+    --ink:rgba(255,255,255,.92);
+    --key-border:rgba(255,255,255,.28);
+    --key-bg:rgba(255,255,255,.05);
+    --key-bg-hover:rgba(255,255,255,.12);
+    --dot-border:rgba(255,255,255,.55);
+    --dot-fill:#e8e3d8;
+}
+
+/* THEME — Blossom: white, with subtle pink */
+html[data-theme="blossom"]{
+    --bg1:#ffffff;
+    --bg2:#fbeef3;
+    --grid:rgba(230,164,190,.2);
+    --blob1:#f6c6d8;
+    --blob2:#f2b9cf;
+    --ink:#8f4f6b;
+    --key-border:rgba(214,146,175,.6);
+    --key-bg:rgba(245,184,205,.12);
+    --key-bg-hover:rgba(245,184,205,.28);
+    --dot-border:rgba(214,146,175,.7);
+    --dot-fill:#f5b8cd;
+}
+
+body{
+    font-family:Quicksand,sans-serif;
+    height:100vh;
+    height:100svh;
+    overflow:hidden;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:radial-gradient(circle at top,var(--bg1),var(--bg2));
+    padding:clamp(16px,4vw,40px);
+    position:relative;
+}
+
+body:before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:30px 30px;
+}
+
+.blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(55px);
+    opacity:.25;
+    animation:f 10s ease-in-out infinite;
+}
+
+.one{
+    width:260px;
+    height:260px;
+    background:var(--blob1);
+    top:-80px;
+    left:-40px;
+}
+
+.two{
+    width:220px;
+    height:220px;
+    background:var(--blob2);
+    bottom:-60px;
+    right:-40px;
+    animation-delay:3s;
+}
+
+@keyframes f{
+    50%{
+        transform:translateY(-20px);
+    }
+}
+
+.card{
+    position:relative;
+    z-index:5;
+    width:min(430px,100%);
+    text-align:center;
+    padding:10px;
+}
+
+.logo{
+    width:clamp(90px,25vw,120px);
+    max-width:100%;
+    animation:float 4s ease-in-out infinite;
+}
+
+@keyframes float{
+    50%{
+        transform:translateY(-8px);
+    }
+}
+
+h2{
+    margin:10px 0 22px;
+    color:var(--ink);
+    font-family:'Kranky',serif;
+    font-size:clamp(1.4rem,5.5vw,1.7rem);
+    font-weight:400;
+}
+
+.dots{
+    display:flex;
+    justify-content:center;
+    gap:clamp(12px,4vw,16px);
+    margin-bottom:25px;
+}
+
+.dot{
+    width:clamp(14px,4.5vw,18px);
+    aspect-ratio:1;
+    border-radius:50%;
+    border:2px solid var(--dot-border);
+    transition:.2s;
+}
+
+.dot.fill{
+    background:var(--dot-fill);
+}
+
+.keypad{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,90px));
+    justify-content:center;
+    gap:clamp(12px,4vw,18px);
+}
+
+.btn,
+.zero{
+    width:100%;
+    aspect-ratio:1;
+    border-radius:50%;
+    border:2px solid var(--key-border);
+    background:var(--key-bg);
+    color:var(--ink);
+    font-size:clamp(1.45rem,7vw,2rem);
+    cursor:pointer;
+    transition:.15s;
+}
+
+.btn:hover,
+.zero:hover{
+    background:var(--key-bg-hover);
+}
+
+.btn,
+.zero{
+    -webkit-tap-highlight-color:transparent;
+    outline:none;
+}
+
+.btn:focus,
+.zero:focus{
+    outline:none;
+}
+
+.btn:disabled,
+.zero:disabled{
+    cursor:not-allowed;
+    opacity:.5;
+}
+
+.btn:active,
+.zero:active{
+    transform:scale(.94);
+}
+
+.zero{
+    grid-column:2;
+}
+
+/* erase key — sits right of the 0, like a phone pin pad */
+.erase{
+    grid-column:3;
+    width:100%;
+    aspect-ratio:1;
+    border-radius:50%;
+    border:2px solid transparent;
+    background:transparent;
+    color:var(--ink);
+    font-size:clamp(1.3rem,6vw,1.7rem);
+    cursor:pointer;
+    transition:.15s;
+    -webkit-tap-highlight-color:transparent;
+    outline:none;
+}
+
+.erase:hover{
+    background:var(--key-bg);
+}
+
+.erase:active{
+    transform:scale(.94);
+}
+
+.erase:disabled{
+    cursor:not-allowed;
+    opacity:.5;
+}
+
+.info{
+    margin-top:20px;
+    color:var(--ink);
+    min-height:22px;
+    font-weight:700;
+}
+
+.shake{
+    animation:shake .35s;
+}
+
+@keyframes shake{
+    20%{transform:translateX(-8px);}
+    40%{transform:translateX(8px);}
+    60%{transform:translateX(-6px);}
+    80%{transform:translateX(6px);}
+}
+
+@media (max-height:650px){
+    .card{
+        padding:10px;
+    }
+
+    .keypad{
+        grid-template-columns:repeat(3,minmax(0,64px));
+        gap:10px;
+    }
+}
+
+@media (max-height:450px){
+    h2{
+        font-size:1.1rem;
+    }
+
+    .keypad{
+        grid-template-columns:repeat(3,minmax(0,48px));
+        gap:7px;
+    }
+
+    .info{
+        font-size:.8rem;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="blob one"></div>
+<div class="blob two"></div>
+
+<div class="card">
+
+<h2>Enter Passcode</h2>
+
+<div class="dots">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+</div>
+
+<div class="keypad" id="keys"></div>
+
+<div class="info" id="info"></div>
+
+</div>
+
+<script>
+const PASS="2580";
+let input="";
+let attempts=0;
+let locked=false;
+
+const dots=[...document.querySelectorAll(".dot")];
+const info=document.getElementById("info");
+const keys=document.getElementById("keys");
+
+[1,2,3,4,5,6,7,8,9].forEach(n=>add(n));
+add(0,true);
+addErase();
+
+function add(n,zero=false){
+    const b=document.createElement("button");
+    b.type="button";
+    b.className=zero?"zero":"btn";
+    b.textContent=n;
+    b.onclick=()=>press(n);
+    keys.appendChild(b);
+}
+
+function addErase(){
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="erase";
+    b.setAttribute("aria-label","Erase last digit");
+    b.textContent="⌫";
+    b.onclick=erase;
+    keys.appendChild(b);
+}
+
+function erase(){
+    if(locked)return;
+    if(!input.length)return;
+    input=input.slice(0,-1);
+    update();
+    if(navigator.vibrate)navigator.vibrate(10);
+}
+
+function update(){
+    dots.forEach((d,i)=>d.classList.toggle("fill",i<input.length));
+}
+
+function press(n){
+    if(locked)return;
+    if(input.length>=4)return;
+
+    input+=n;
+    update();
+
+    if(navigator.vibrate)navigator.vibrate(15);
+
+    if(input.length===4){
+        setTimeout(check,150);
+    }
+}
+
+function check(){
+
+    if(input===PASS){
+        info.textContent="Access Granted";
+        try{
+            sessionStorage.setItem("vault_auth","1");
+        }catch(e){}
+        setTimeout(()=>{
+            location.href="dashboard.html";
+        },700);
+        return;
+    }
+
+    attempts++;
+
+    document.querySelector(".card").classList.add("shake");
+    setTimeout(()=>{
+        document.querySelector(".card").classList.remove("shake");
+    },350);
+
+    input="";
+    update();
+
+    if(attempts>=3){
+
+        locked=true;
+
+        let t=30;
+
+        info.innerHTML="Locked for <span id='t'>30</span>s";
+
+        [...document.querySelectorAll("button")].forEach(b=>b.disabled=true);
+
+        const timer=setInterval(()=>{
+
+            t--;
+
+            document.getElementById("t").textContent=t;
+
+            if(t<=0){
+
+                clearInterval(timer);
+
+                locked=false;
+                attempts=0;
+
+                info.textContent="";
+
+                [...document.querySelectorAll("button")].forEach(b=>b.disabled=false);
+
+            }
+
+        },1000);
+
+    }else{
+
+        const remaining=3-attempts;
+
+        info.textContent=`Incorrect — ${remaining} ${remaining===1?"attempt":"attempts"} remaining`;
+
+    }
+}
+</script>
+
+</body>
+</html>

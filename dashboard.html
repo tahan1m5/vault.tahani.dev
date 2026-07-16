@@ -1010,70 +1010,44 @@ const APPS = [
         //secondary:{ label:'SSH', url:'ssh://root@homeserver' }
     },
     {
-        id:'casaos', title:'CasaOS', tag:'Self-hosted', icon:'server', color:'#6E9ECF',
-        description:'Your home cloud. Apps, storage and system control in one place.',
-        primary:{ label:'Open CasaOS', url:'http://casaos.local' }
+        id:'glance', title:'Glance', tag:'Dashboard', icon:'home', color:'#6E9ECF',
+        description:'Your home dashboard. A calm overview of everything running on the server.',
+        primary:{ label:'Open Glance', url:'http://192.168.100.20:8080' }
     },
     {
-        id:'grafana', title:'Grafana', tag:'Monitoring', icon:'chart', color:'#D08770',
-        description:'Dashboards and metrics for everything running in your ecosystem.',
-        primary:{ label:'Open Grafana', url:'http://localhost:3000' }
+        id:'glances', title:'Glances', tag:'Monitor', icon:'chart', color:'#D08770',
+        description:'Live system monitoring — CPU, memory, disks and network at a glance.',
+        primary:{ label:'Open Glances', url:'http://192.168.100.20:61208' }
     },
     {
-        id:'chatgpt', title:'ChatGPT', tag:'AI', icon:'chat', color:'#7CB5A0',
-        description:'AI assistant for quick answers, drafts and ideas.',
-        primary:{ label:'Open ChatGPT', url:'https://chatgpt.com' }
+        id:'jellyfin', title:'Jellyfin', tag:'Media', icon:'spark', color:'#9B8CCF',
+        description:'Your personal media server. Movies, shows and music, streamed anywhere.',
+        primary:{ label:'Open Jellyfin', url:'http://192.168.100.20:8096' }
     },
     {
-        id:'claude', title:'Claude', tag:'AI', icon:'spark', color:'#C99B6E',
-        description:'AI assistant for deep work, code and long-form thinking.',
-        primary:{ label:'Open Claude', url:'https://claude.ai' }
+        id:'radarr', title:'Radarr', tag:'Movies', icon:'diamond', color:'#CFA45E',
+        description:'Automated movie collection manager. Finds, grabs and organizes films.',
+        primary:{ label:'Open Radarr', url:'http://192.168.100.20:7878' }
     },
     {
-        id:'figma', title:'Figma', tag:'Design', icon:'figma', color:'#9B8CCF',
-        description:'Interface design, prototypes and visual explorations.',
-        primary:{ label:'Open Figma', url:'https://figma.com' }
+        id:'sonarr', title:'Sonarr', tag:'TV', icon:'triangle', color:'#7CB5A0',
+        description:'Automated TV series manager. Tracks releases and keeps shows up to date.',
+        primary:{ label:'Open Sonarr', url:'http://192.168.100.20:8989' }
     },
     {
-        id:'vscode', title:'VS Code', tag:'Development', icon:'code', color:'#6E9ECF',
-        description:'Your editor. Open it in the browser or jump to the desktop app.',
-        primary:{ label:'Open vscode.dev', url:'https://vscode.dev' },
-        secondary:{ label:'Desktop App', url:'vscode://' }
+        id:'prowlarr', title:'Prowlarr', tag:'Indexers', icon:'plug', color:'#C98A9E',
+        description:'Indexer manager for Radarr and Sonarr. One place to wire up your sources.',
+        primary:{ label:'Open Prowlarr', url:'http://192.168.100.20:9696' }
     },
     {
-        id:'firebase', title:'Firebase', tag:'Backend', icon:'flame', color:'#CFA45E',
-        description:'Auth, databases and hosting for your apps.',
-        primary:{ label:'Open Console', url:'https://console.firebase.google.com' }
+        id:'portainer', title:'Portainer', tag:'Docker', icon:'container', color:'#4FA8A8',
+        description:'Container management for the home server. See, deploy and control Docker.',
+        primary:{ label:'Open Portainer', url:'https://192.168.100.20:9443' }
     },
     {
-        id:'vercel', title:'Vercel', tag:'Deploy', icon:'triangle', color:'#5E7A6C',
-        description:'Deployments, previews and domains for your frontend projects.',
-        primary:{ label:'Open Vercel', url:'https://vercel.com/dashboard' }
-    },
-    {
-        id:'netlify', title:'Netlify', tag:'Deploy', icon:'diamond', color:'#4FA8A8',
-        description:'Static sites, functions and forms — deployed from git.',
-        primary:{ label:'Open Netlify', url:'https://app.netlify.com' }
-    },
-    {
-        id:'files', title:'Files', tag:'System', icon:'folder', color:'#8AAE6C',
-        description:'Browse the files living on your home server.',
-        primary:{ label:'Open Files', url:'http://localhost:8080' }
-    },
-    {
-        id:'ssh', title:'SSH', tag:'System', icon:'terminal', color:'#2F3B34',
-        description:'Direct terminal access to your machines.',
-        primary:{ label:'Connect', url:'ssh://root@homeserver' }
-    },
-    {
-        id:'docs', title:'Documentation', tag:'Reference', icon:'book', color:'#7CB5A0',
-        description:'API references and language docs, all in one reader.',
-        primary:{ label:'Open DevDocs', url:'https://devdocs.io' }
-    },
-    {
-        id:'apis', title:'APIs', tag:'Reference', icon:'plug', color:'#C98A9E',
-        description:'Test, inspect and explore your API endpoints.',
-        primary:{ label:'Open API Client', url:'https://hoppscotch.io' }
+        id:'transmission', title:'Transmission', tag:'Torrents', icon:'arrow', color:'#8AAE6C',
+        description:'Lightweight torrent client. Manage downloads quietly in the background.',
+        primary:{ label:'Open Transmission', url:'http://192.168.100.20:9091' }
     },
     {
         id:'settings', title:'Settings', tag:'System', icon:'gear', color:'#8A8F98',
